@@ -121,6 +121,7 @@ const TaskBoard = () => {
               onDragOver={handleDragOver}
               onDrop={handleDrop}
               onAddTask={handleAddTask}
+              draggedTaskId={draggedTaskId}
             />
           ))}
         </div>
