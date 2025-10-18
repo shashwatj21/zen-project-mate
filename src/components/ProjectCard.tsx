@@ -1,3 +1,4 @@
+import { useNavigate } from 'react-router-dom';
 import { Project } from '@/contexts/ProjectContext';
 import { Button } from '@/components/ui/button';
 import { MoreHorizontal, Trash2, Edit } from 'lucide-react';
@@ -15,8 +16,13 @@ interface ProjectCardProps {
 }
 
 export const ProjectCard = ({ project, onEdit, onDelete }: ProjectCardProps) => {
+  const navigate = useNavigate();
+
   return (
-    <div className="group relative border border-border bg-card rounded-lg p-6 transition-all duration-300 hover:border-foreground/20">
+    <div 
+      onClick={() => navigate(`/project/${project.id}`)}
+      className="group relative border border-border bg-card rounded-lg p-6 transition-all duration-300 hover:border-foreground/20 cursor-pointer"
+    >
       <div className="flex items-start justify-between gap-4">
         <div className="flex-1 min-w-0">
           <h3 className="text-lg font-medium text-foreground mb-2 truncate">
@@ -35,7 +41,7 @@ export const ProjectCard = ({ project, onEdit, onDelete }: ProjectCardProps) => 
         </div>
         
         <DropdownMenu>
-          <DropdownMenuTrigger asChild>
+          <DropdownMenuTrigger asChild onClick={(e) => e.stopPropagation()}>
             <Button 
               variant="ghost" 
               size="icon"
@@ -45,12 +51,18 @@ export const ProjectCard = ({ project, onEdit, onDelete }: ProjectCardProps) => 
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end">
-            <DropdownMenuItem onClick={() => onEdit(project)}>
+            <DropdownMenuItem onClick={(e) => {
+              e.stopPropagation();
+              onEdit(project);
+            }}>
               <Edit className="h-4 w-4 mr-2" />
               Edit
             </DropdownMenuItem>
             <DropdownMenuItem 
-              onClick={() => onDelete(project.id)}
+              onClick={(e) => {
+                e.stopPropagation();
+                onDelete(project.id);
+              }}
               className="text-destructive"
             >
               <Trash2 className="h-4 w-4 mr-2" />
