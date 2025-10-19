@@ -1,6 +1,7 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 
 export type TaskStatus = 'todo' | 'in-progress' | 'done';
+export type ListSection = 'today' | 'tomorrow' | 'later';
 
 export interface Task {
   id: string;
@@ -8,6 +9,8 @@ export interface Task {
   title: string;
   description: string;
   status: TaskStatus;
+  listSection?: ListSection;
+  completed?: boolean;
   createdAt: string;
 }
 

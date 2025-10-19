@@ -45,8 +45,21 @@ export const TaskColumn = ({
     setIsDragOver(false);
   };
 
+  const getColumnColor = () => {
+    switch (status) {
+      case 'todo':
+        return 'bg-red-500/5';
+      case 'in-progress':
+        return 'bg-yellow-500/5';
+      case 'done':
+        return 'bg-green-500/5';
+      default:
+        return 'bg-muted/30';
+    }
+  };
+
   return (
-    <div className="flex-1 min-w-[280px] bg-muted/30 rounded-lg p-4 transition-all duration-300">
+    <div className={`flex-1 min-w-[280px] ${getColumnColor()} rounded-lg p-4 transition-all duration-300`}>
       <div className="flex items-center justify-between mb-4">
         <div className="flex items-center gap-2">
           <h3 className="text-sm font-medium text-foreground">{title}</h3>

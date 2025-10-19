@@ -1,17 +1,24 @@
 import { useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useProjects } from '@/contexts/ProjectContext';
-import { useTasks, Task, TaskStatus } from '@/contexts/TaskContext';
+import { useTasks, Task, TaskStatus, ListSection } from '@/contexts/TaskContext';
 import { TaskColumn } from '@/components/TaskColumn';
 import { TaskDialog } from '@/components/TaskDialog';
+import { ListViewSection } from '@/components/ListViewSection';
 import { Button } from '@/components/ui/button';
-import { ArrowLeft, Plus } from 'lucide-react';
+import { ArrowLeft, Plus, LayoutGrid, List } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 
 const STATUS_COLUMNS: { title: string; status: TaskStatus }[] = [
   { title: 'To Do', status: 'todo' },
   { title: 'In Progress', status: 'in-progress' },
   { title: 'Done', status: 'done' },
+];
+
+const LIST_SECTIONS: { title: string; section: ListSection }[] = [
+  { title: 'Today', section: 'today' },
+  { title: 'Tomorrow', section: 'tomorrow' },
+  { title: 'Later', section: 'later' },
 ];
 
 const TaskBoard = () => {
@@ -25,6 +32,7 @@ const TaskBoard = () => {
   const [editingTask, setEditingTask] = useState<Task | null>(null);
   const [defaultStatus, setDefaultStatus] = useState<TaskStatus>('todo');
   const [draggedTaskId, setDraggedTaskId] = useState<string | null>(null);
+  const [viewMode, setViewMode] = useState<'kanban' | 'list'>('kanban');
 
   const project = projects.find(p => p.id === projectId);
   const tasks = projectId ? getTasksByProject(projectId) : [];
@@ -85,6 +93,21 @@ const TaskBoard = () => {
     }
   };
 
+  const handleListDrop = (e: React.DragEvent, section: ListSection) => {
+    e.preventDefault();
+    if (draggedTaskId) {
+      updateTask(draggedTaskId, { listSection: section });
+      setDraggedTaskId(null);
+    }
+  };
+
+  const handleToggleComplete = (id: string) => {
+    const task = tasks.find(t => t.id === id);
+    if (task) {
+      updateTask(id, { completed: !task.completed });
+    }
+  };
+
   return (
     <div className="min-h-screen bg-background">
       <div className="max-w-[1400px] mx-auto px-6 py-8">
@@ -102,29 +125,71 @@ const TaskBoard = () => {
               <p className="text-sm text-muted-foreground">{project.description}</p>
             </div>
           </div>
-          <Button onClick={() => handleAddTask('todo')} className="gap-2">
-            <Plus className="h-4 w-4" />
-            New Task
-          </Button>
+          <div className="flex items-center gap-2">
+            <div className="flex bg-muted rounded-lg p-1">
+              <Button
+                variant={viewMode === 'kanban' ? 'secondary' : 'ghost'}
+                size="sm"
+                onClick={() => setViewMode('kanban')}
+                className="gap-2"
+              >
+                <LayoutGrid className="h-4 w-4" />
+                Kanban
+              </Button>
+              <Button
+                variant={viewMode === 'list' ? 'secondary' : 'ghost'}
+                size="sm"
+                onClick={() => setViewMode('list')}
+                className="gap-2"
+              >
+                <List className="h-4 w-4" />
+                List
+              </Button>
+            </div>
+            <Button onClick={() => handleAddTask('todo')} className="gap-2">
+              <Plus className="h-4 w-4" />
+              New Task
+            </Button>
+          </div>
         </div>
 
-        <div className="flex gap-6 overflow-x-auto pb-4">
-          {STATUS_COLUMNS.map(({ title, status }) => (
-            <TaskColumn
-              key={status}
-              title={title}
-              status={status}
-              tasks={tasks.filter(t => t.status === status)}
-              onEdit={handleEdit}
-              onDelete={handleDelete}
-              onDragStart={handleDragStart}
-              onDragOver={handleDragOver}
-              onDrop={handleDrop}
-              onAddTask={handleAddTask}
-              draggedTaskId={draggedTaskId}
-            />
-          ))}
-        </div>
+        {viewMode === 'kanban' ? (
+          <div className="flex gap-6 overflow-x-auto pb-4">
+            {STATUS_COLUMNS.map(({ title, status }) => (
+              <TaskColumn
+                key={status}
+                title={title}
+                status={status}
+                tasks={tasks.filter(t => t.status === status)}
+                onEdit={handleEdit}
+                onDelete={handleDelete}
+                onDragStart={handleDragStart}
+                onDragOver={handleDragOver}
+                onDrop={handleDrop}
+                onAddTask={handleAddTask}
+                draggedTaskId={draggedTaskId}
+              />
+            ))}
+          </div>
+        ) : (
+          <div className="max-w-3xl">
+            {LIST_SECTIONS.map(({ title, section }) => (
+              <ListViewSection
+                key={section}
+                title={title}
+                section={section}
+                tasks={tasks.filter(t => (t.listSection || 'today') === section)}
+                onEdit={handleEdit}
+                onDelete={handleDelete}
+                onToggleComplete={handleToggleComplete}
+                onDragStart={handleDragStart}
+                onDragOver={handleDragOver}
+                onDrop={handleListDrop}
+                draggedTaskId={draggedTaskId}
+              />
+            ))}
+          </div>
+        )}
 
         <TaskDialog
           open={dialogOpen}
