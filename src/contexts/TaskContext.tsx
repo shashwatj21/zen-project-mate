@@ -11,6 +11,8 @@ export interface Task {
   status: TaskStatus;
   listSection?: ListSection;
   completed?: boolean;
+  priority?: 'high' | 'low';
+  color?: string;
   createdAt: string;
 }
 

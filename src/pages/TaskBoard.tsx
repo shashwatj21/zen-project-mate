@@ -48,7 +48,7 @@ const TaskBoard = () => {
     );
   }
 
-  const handleSave = (data: { title: string; description: string; status: TaskStatus }) => {
+  const handleSave = (data: { title: string; description: string; status: TaskStatus; priority?: 'high' | 'low'; color?: string }) => {
     if (editingTask) {
       updateTask(editingTask.id, data);
       toast({ title: 'Task updated', description: 'Your task has been updated successfully.' });
@@ -104,7 +104,12 @@ const TaskBoard = () => {
   const handleToggleComplete = (id: string) => {
     const task = tasks.find(t => t.id === id);
     if (task) {
-      updateTask(id, { completed: !task.completed });
+      const newCompleted = !task.completed && task.status !== 'done';
+      const newStatus = newCompleted ? 'done' : 'todo';
+      updateTask(id, { 
+        completed: newCompleted,
+        status: newStatus
+      });
     }
   };
 

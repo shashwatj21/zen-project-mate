@@ -1,12 +1,13 @@
 import { Task } from '@/contexts/TaskContext';
 import { Button } from '@/components/ui/button';
-import { MoreHorizontal, Trash2, Edit, GripVertical } from 'lucide-react';
+import { MoreHorizontal, Trash2, Edit, GripVertical, AlertCircle } from 'lucide-react';
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
+import { Badge } from '@/components/ui/badge';
 
 interface TaskCardProps {
   task: Task;
@@ -21,9 +22,10 @@ export const TaskCard = ({ task, onEdit, onDelete, onDragStart, isDragging }: Ta
     <div
       draggable
       onDragStart={(e) => onDragStart(e, task.id)}
-      className={`group bg-card border border-border rounded-lg p-4 mb-3 cursor-move transition-all duration-300 hover:border-foreground/20 hover:shadow-md animate-fade-in ${
+      className={`group bg-card border-l-4 border-t border-r border-b rounded-lg p-4 mb-3 cursor-move transition-all duration-300 hover:border-foreground/20 hover:shadow-md animate-fade-in ${
         isDragging ? 'opacity-50 scale-95' : 'opacity-100'
       }`}
+      style={{ borderLeftColor: task.color || 'transparent' }}
     >
       <div className="flex items-start gap-3">
         <div className="pt-1 opacity-0 group-hover:opacity-40 transition-opacity">
@@ -31,14 +33,27 @@ export const TaskCard = ({ task, onEdit, onDelete, onDragStart, isDragging }: Ta
         </div>
         
         <div className="flex-1 min-w-0">
-          <h4 className={`text-sm font-medium text-foreground mb-2 break-words ${
-            task.status === 'done' ? 'line-through opacity-60' : ''
-          }`}>
-            {task.title}
-          </h4>
+          <div className="flex items-center gap-2 mb-2">
+            <h4 className={`text-sm font-medium text-foreground break-words flex-1 ${
+              task.status === 'done' || task.completed ? 'line-through opacity-60' : ''
+            }`}>
+              {task.title}
+            </h4>
+            {task.priority === 'high' && (
+              <Badge variant="destructive" className="text-xs gap-1 flex-shrink-0">
+                <AlertCircle className="h-3 w-3" />
+                High
+              </Badge>
+            )}
+            {task.priority === 'low' && (
+              <Badge variant="secondary" className="text-xs flex-shrink-0">
+                Low
+              </Badge>
+            )}
+          </div>
           {task.description && (
             <p className={`text-xs text-muted-foreground line-clamp-3 break-words ${
-              task.status === 'done' ? 'line-through opacity-50' : ''
+              task.status === 'done' || task.completed ? 'line-through opacity-50' : ''
             }`}>
               {task.description}
             </p>
