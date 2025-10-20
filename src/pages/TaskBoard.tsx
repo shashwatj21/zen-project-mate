@@ -159,7 +159,7 @@ const TaskBoard = () => {
         </div>
 
         {viewMode === 'kanban' ? (
-          <div className="flex gap-6 overflow-x-auto pb-4">
+          <div className="flex flex-col md:flex-row gap-4 md:gap-6 md:overflow-x-auto pb-4">
             {STATUS_COLUMNS.map(({ title, status }) => (
               <TaskColumn
                 key={status}
